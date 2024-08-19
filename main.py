@@ -1,4 +1,5 @@
 from base_connect import Base
+from server_program import Server
 
 if __name__ == "__main__":
     print("Hello World")
@@ -13,3 +14,10 @@ if __name__ == "__main__":
     print(base_1.port)
     print(base_2.port)
     print(base_3.port)
+
+    server_1 = Server()
+    server_2 = Server("localhost", 12345)
+    server_3 = Server(port=1234, host="localhost")
+
+    print(server_1.host)
+    print(server_3.host)
