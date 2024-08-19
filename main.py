@@ -1,4 +1,5 @@
 from base_connect import Base
+from client_program import Client
 from server_program import Server
 
 if __name__ == "__main__":
@@ -21,3 +22,11 @@ if __name__ == "__main__":
 
     print(server_1.host)
     print(server_3.host)
+
+    client_1 = Client()
+    client_2 = Client("127.0.0.1", 2345)
+    client_3 = Client(host="localhost", port=1234)
+
+    print()
+    print(client_1.host)
+    print(client_3.device_id)
