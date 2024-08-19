@@ -30,5 +30,3 @@ if __name__ == "__main__":
     print()
     print(client_1.host)
     print(client_3.device_id)
-
-    server_1.init()

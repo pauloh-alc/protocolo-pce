@@ -17,3 +17,18 @@ class Server(Base):
         print(
             f"Servidor iniciado [porta: {self.port}]. Aguardando conexão com cliente ..."
         )
+
+        conn, adds = server.accept()
+        print("Conectado em ", adds)
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                print("Fechando a conexão")
+                conn.close()
+                break
+            conn.sendall(data)
+
+
+if __name__ == "__main__":
+    server = Server()
+    server.init()
