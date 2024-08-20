@@ -1,6 +1,6 @@
-from base_connect import Base
-from client_program import Client
-from server_program import Server
+from client_server.base_connect import Base
+from client_server.client_program import Client
+from client_server.server_program import Server
 
 if __name__ == "__main__":
     print("Hello World")

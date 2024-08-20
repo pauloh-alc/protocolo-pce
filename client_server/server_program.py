@@ -1,4 +1,4 @@
-from base_connect import Base
+from client_server.base_connect import Base
 import socket
 
 
