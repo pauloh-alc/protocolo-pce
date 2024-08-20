@@ -6,5 +6,5 @@ from datetime import datetime
 class Header:
     version_protocol: float = 1.0
     message_type: str = "SENSOR_CONNECT"
-    device_id: str = "sensor_01"
+    device_id: str = None
     timestamp: datetime = datetime.now()
