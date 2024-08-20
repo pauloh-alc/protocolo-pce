@@ -1,0 +1,2 @@
+class CustomErrorInvalidMessage(Exception):
+    pass
