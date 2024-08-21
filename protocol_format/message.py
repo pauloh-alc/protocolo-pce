@@ -38,39 +38,27 @@ class Message:
             timestamp = fields[2]
             value = fields[3]
             return Message(
-                Header(
+                header=Header(
                     version_protocol=1.0, message_type=message_type, timestamp=timestamp
                 ),
-                Body(value=value),
+                body=Body(value=value),
             )
         elif message_type == "ACTUATOR_COMMAND":
             value = fields[2]
             return Message(
-                Header(
+                header=Header(
                     version_protocol=1.0, message_type=message_type, device_id=device_id
                 ),
-                Body(value=value),
+                body=Body(value=value),
             )
         elif message_type in ["SENSOR_CONNECT", "ACTUATOR_CONNECT"]:
             return Message(
-                Header(
+                header=Header(
                     version_protocol=1.0, message_type=message_type, device_id=device_id
-                )
+                ),
+                body=Body(),
             )
         else:
             raise CustomErrorInvalidMessage(
                 f"Tipo de mensagem desconhecido: {message_type}"
             )
-
-
-if __name__ == "__main__":
-    message = Message(
-        Header(message_type="SENSOR_CONNECT", device_id="sensor01"), Body()
-    )
-    print(message.header.message_type)
-    print(message.header.version_protocol)
-    print(message.header.message_type)
-    print(message.body.value)
-
-    print(message.to_string())
-    print(Message.from_string("ACTUATOR_COMMAND|actuator_01|ON"))
