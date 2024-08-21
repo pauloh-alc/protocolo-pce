@@ -46,7 +46,7 @@ class Message:
                 body=Body(value=value),
             )
         elif message_type == "ACTUATOR_COMMAND":
-            value = fields[4]
+            value = fields[3]
             return Message(
                 header=Header(
                     version_protocol=version_protocol,
