@@ -43,7 +43,6 @@ class Server(Base):
                 if msg.header.message_type == "SENSOR_CONNECT":
                     print(f"Sensor {msg.header.device_id} conectado.")
                     self.sensors_data[msg.header.device_id] = None
-                    print(self.sensors_data)
 
                     response_msg = Message(
                         header=Header(
