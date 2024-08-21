@@ -40,6 +40,7 @@ class Message:
                 header=Header(
                     version_protocol=version_protocol,
                     message_type=message_type,
+                    device_id=device_id,
                     timestamp=timestamp,
                 ),
                 body=Body(value=value),
