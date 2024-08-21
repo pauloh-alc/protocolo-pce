@@ -5,6 +5,8 @@ import socket
 class Server(Base):
     def __init__(self, host="localhost", port=5000):
         super().__init__(host, port)
+        self.sensors_data = {}
+        self.actuators_status = {}
 
     def init(self):
         ADDR_FAMILY_IPV4 = socket.AF_INET
