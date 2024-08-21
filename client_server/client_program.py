@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 from base_connect import Base
@@ -9,7 +10,9 @@ from protocol_format.message import Message
 
 
 class Client(Base):
-    def __init__(self, host="localhost", port=1024, device_id="sensor01"):
+    def __init__(
+        self, host="localhost", port=1024, device_id="sensor[temperatura-interna]"
+    ):
         super().__init__(host, port)
         self.device_id = device_id
 
@@ -20,35 +23,49 @@ class Client(Base):
         client = socket.socket(ADDR_FAMILY_IPV4, TCP_TYPE_SOCKET)
         client.connect((self.host, self.port))
 
+        # SENSOR_CONNECT:
         connect_msg_sensor = Message(
             header=Header(
                 version_protocol=1.0,
                 message_type="SENSOR_CONNECT",
-                device_id="sensor_01",
+                device_id="sensor[temperatura_interna]",
                 timestamp=datetime.now(),
             ),
             body=Body(value=""),
         )
 
         # Handshake inicial
-        # Enviando msg de conexão inicial
         client.sendall(connect_msg_sensor.to_string().encode("utf-8"))
-
-        # Recebendo msg após a conexão ser estabelacida
         response = client.recv(1024).decode("utf-8")
         print(f"Resposta do servidor: {response}")
 
+        # ACTUACTOR_CONNECT:
         connect_msg_actuator = Message(
             header=Header(
                 version_protocol=1.0,
                 message_type="ACTUATOR_CONNECT",
-                device_id="actuator_01",
+                device_id="actuator[aquecedor]",
                 timestamp=datetime.now(),
             ),
             body=Body(value=""),
         )
 
         client.sendall(connect_msg_actuator.to_string().encode("utf-8"))
+
+        # SENSOR_DATA:
+        while True:
+            timestamp = datetime.now()
+            msg_sensor_data = Message(
+                header=Header(
+                    version_protocol=1.0,
+                    message_type="SENSOR_DATA",
+                    device_id=self.device_id,
+                    timestamp=timestamp,
+                ),
+                body=Body(value="12"),
+            )
+            client.sendall(msg_sensor_data.to_string().encode("utf-8"))
+            time.sleep(1)
 
 
 if __name__ == "__main__":

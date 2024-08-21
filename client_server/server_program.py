@@ -56,9 +56,18 @@ class Server(Base):
                     conn.sendall(response_msg.to_string().encode("utf-8"))
 
                 elif msg.header.message_type == "ACTUATOR_CONNECT":
-                    print(f"Atuador: {msg.header.device_id} conectado ao gerenciado")
+                    print(f"Atuador: {msg.header.device_id} conectado ao gerenciador.")
                     turn_off = "OFF"
                     self.actuators_status[msg.header.device_id] = turn_off
+
+                elif msg.header.message_type == "SENSOR_DATA":
+                    print(
+                        f"Transmissão de dados: sensor - {msg.header.device_id}, hora: {msg.header.timestamp}, dado: {msg.body.value}"
+                    )
+                    self.sensors_data[msg.header.device_id] = (
+                        msg.body.value,
+                        msg.header.timestamp,
+                    )
 
             except ValueError as e:
                 print(f"Erro ao processar a mensagem do cliente!")
