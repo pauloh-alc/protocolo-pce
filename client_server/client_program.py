@@ -53,6 +53,7 @@ class Client(Base):
         client.sendall(connect_msg_actuator.to_string().encode("utf-8"))
 
         # SENSOR_DATA:
+        count = 0
         while True:
             timestamp = datetime.now()
             msg_sensor_data = Message(
@@ -66,6 +67,21 @@ class Client(Base):
             )
             client.sendall(msg_sensor_data.to_string().encode("utf-8"))
             time.sleep(1)
+            count += 1
+            if count == 10:
+                break
+
+        # ACTUATOR_COMMAND
+        msg_actuator_command = Message(
+            header=Header(
+                version_protocol=1.0,
+                message_type="ACTUATOR_COMMAND",
+                device_id="actuator[Nível-de-CO2]",
+            ),
+            body=Body(value="ON"),
+        )
+
+        client.sendall(msg_actuator_command.to_string().encode("utf-8"))
 
 
 if __name__ == "__main__":
