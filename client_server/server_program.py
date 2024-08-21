@@ -69,6 +69,12 @@ class Server(Base):
                         msg.header.timestamp,
                     )
 
+                elif msg.header.message_type == "ACTUATOR_COMMAND":
+                    self.actuators_status[msg.header.device_id] = msg.body.value
+                    print(
+                        f"Comando enviado pelo atuador - {msg.header.device_id} = {msg.body.value}."
+                    )
+
             except ValueError as e:
                 print(f"Erro ao processar a mensagem do cliente!")
 
