@@ -41,7 +41,7 @@ class Server(Base):
             try:
                 msg = Message.from_string(data)
                 if msg.header.message_type == "SENSOR_CONNECT":
-                    print(f"Sensor {msg.header.device_id} conectado.")
+                    print(f"Sensor: {msg.header.device_id} conectado ao gerenciador.")
                     self.sensors_data[msg.header.device_id] = None
 
                     response_msg = Message(
@@ -54,6 +54,12 @@ class Server(Base):
                         body=Body(value="Conexão bem-sucedida"),
                     )
                     conn.sendall(response_msg.to_string().encode("utf-8"))
+
+                elif msg.header.message_type == "ACTUATOR_CONNECT":
+                    print(f"Atuador: {msg.header.device_id} conectado ao gerenciado")
+                    turn_off = "OFF"
+                    self.actuators_status[msg.header.device_id] = turn_off
+
             except ValueError as e:
                 print(f"Erro ao processar a mensagem do cliente!")
 

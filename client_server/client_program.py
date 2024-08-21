@@ -20,7 +20,7 @@ class Client(Base):
         client = socket.socket(ADDR_FAMILY_IPV4, TCP_TYPE_SOCKET)
         client.connect((self.host, self.port))
 
-        connect_msg = Message(
+        connect_msg_sensor = Message(
             header=Header(
                 version_protocol=1.0,
                 message_type="SENSOR_CONNECT",
@@ -29,12 +29,26 @@ class Client(Base):
             ),
             body=Body(value=""),
         )
+
+        # Handshake inicial
         # Enviando msg de conexão inicial
-        client.sendall(connect_msg.to_string().encode("utf-8"))
+        client.sendall(connect_msg_sensor.to_string().encode("utf-8"))
 
         # Recebendo msg após a conexão ser estabelacida
         response = client.recv(1024).decode("utf-8")
         print(f"Resposta do servidor: {response}")
+
+        connect_msg_actuator = Message(
+            header=Header(
+                version_protocol=1.0,
+                message_type="ACTUATOR_CONNECT",
+                device_id="actuator_01",
+                timestamp=datetime.now(),
+            ),
+            body=Body(value=""),
+        )
+
+        client.sendall(connect_msg_actuator.to_string().encode("utf-8"))
 
 
 if __name__ == "__main__":
