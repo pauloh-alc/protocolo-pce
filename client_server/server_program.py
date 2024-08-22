@@ -1,4 +1,5 @@
 import threading
+from datetime import datetime
 
 from client_server.base_connect import Base
 import socket
@@ -42,7 +43,7 @@ class Server(Base):
                 msg = Message.from_string(data)
                 if msg.header.message_type == "SENSOR_CONNECT":
                     print(f"Sensor: {msg.header.device_id} conectado ao gerenciador.")
-                    self.sensors_data[msg.header.device_id] = None
+                    self.sensors_data[msg.header.device_id] = (None, None)
 
                     response_msg = Message(
                         header=Header(
@@ -74,6 +75,28 @@ class Server(Base):
                     print(
                         f"Comando enviado pelo atuador - {msg.header.device_id} = {msg.body.value}."
                     )
+
+                elif msg.header.message_type == "SENSOR_REQUEST":
+                    value, timestamp_str = self.sensors_data.get(
+                        msg.header.device_id, ("EMPTY", "EMPTY")
+                    )
+
+                    if timestamp_str in ["EMPTY", None]:
+                        timestamp = datetime.now()
+                    else:
+                        timestamp = datetime.strptime(
+                            timestamp_str, "%Y-%m-%d %H:%M:%S"
+                        )
+
+                    response_msg = Message(
+                        header=Header(
+                            version_protocol=1.0,
+                            message_type="SENSOR_RESPONSE",
+                            timestamp=timestamp,
+                        ),
+                        body=Body(value=value),
+                    )
+                    conn.sendall(response_msg.to_string().encode("utf-8"))
 
             except ValueError as e:
                 print(f"Erro ao processar a mensagem do cliente!")
