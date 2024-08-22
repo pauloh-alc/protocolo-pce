@@ -42,66 +42,79 @@ class Server(Base):
             try:
                 msg = Message.from_string(data)
                 if msg.header.message_type == "SENSOR_CONNECT":
-                    print(f"Sensor: {msg.header.device_id} conectado ao gerenciador.")
-                    self.sensors_data[msg.header.device_id] = (None, None)
-
-                    response_msg = Message(
-                        header=Header(
-                            version_protocol=msg.header.version_protocol,
-                            message_type="SENSOR_RESPONSE",
-                            device_id=msg.header.device_id,
-                            timestamp=msg.header.timestamp,
-                        ),
-                        body=Body(value="Conexão bem-sucedida"),
-                    )
-                    conn.sendall(response_msg.to_string().encode("utf-8"))
+                    self._handle_sensor_connect(msg, conn)
 
                 elif msg.header.message_type == "ACTUATOR_CONNECT":
-                    print(f"Atuador: {msg.header.device_id} conectado ao gerenciador.")
-                    turn_off = "OFF"
-                    self.actuators_status[msg.header.device_id] = turn_off
+                    self._handle_actuator_connect(msg)
 
                 elif msg.header.message_type == "SENSOR_DATA":
-                    print(
-                        f"Transmissão de dados: sensor - {msg.header.device_id}, hora: {msg.header.timestamp}, dado: {msg.body.value}"
-                    )
-                    self.sensors_data[msg.header.device_id] = (
-                        msg.body.value,
-                        msg.header.timestamp,
-                    )
+                    self._handle_sensor_data(msg)
 
                 elif msg.header.message_type == "ACTUATOR_COMMAND":
-                    self.actuators_status[msg.header.device_id] = msg.body.value
-                    print(
-                        f"Comando enviado pelo atuador - {msg.header.device_id} = {msg.body.value}."
-                    )
+                    self._handle_actuator_command(msg)
 
                 elif msg.header.message_type == "SENSOR_REQUEST":
-                    value, timestamp_str = self.sensors_data.get(
-                        msg.header.device_id, ("EMPTY", "EMPTY")
-                    )
-
-                    if timestamp_str in ["EMPTY", None]:
-                        timestamp = datetime.now()
-                    else:
-                        timestamp = datetime.strptime(
-                            timestamp_str, "%Y-%m-%d %H:%M:%S"
-                        )
-
-                    response_msg = Message(
-                        header=Header(
-                            version_protocol=1.0,
-                            message_type="SENSOR_RESPONSE",
-                            timestamp=timestamp,
-                        ),
-                        body=Body(value=value),
-                    )
-                    conn.sendall(response_msg.to_string().encode("utf-8"))
+                    self._handle_sensor_request(msg, conn)
 
             except ValueError as e:
                 print(f"Erro ao processar a mensagem do cliente!")
 
         conn.close()
+
+    def _handle_sensor_connect(self, message: Message, conn: socket.socket):
+        print(f"Sensor: {message.header.device_id} conectado ao gerenciador.")
+        self.sensors_data[message.header.device_id] = (None, None)
+
+        response_msg = Message(
+            header=Header(
+                version_protocol=message.header.version_protocol,
+                message_type="SENSOR_RESPONSE",
+                device_id=message.header.device_id,
+                timestamp=message.header.timestamp,
+            ),
+            body=Body(value="Conexão bem-sucedida"),
+        )
+        conn.sendall(response_msg.to_string().encode("utf-8"))
+
+    def _handle_actuator_connect(self, message: Message):
+        print(f"Atuador: {message.header.device_id} conectado ao gerenciador.")
+        turn_off = "OFF"
+        self.actuators_status[message.header.device_id] = turn_off
+
+    def _handle_sensor_data(self, message: Message):
+        print(
+            f"Transmissão de dados: sensor - {message.header.device_id}, hora: {message.header.timestamp}, dado: {message.body.value}"
+        )
+        self.sensors_data[message.header.device_id] = (
+            message.body.value,
+            message.header.timestamp,
+        )
+
+    def _handle_actuator_command(self, message: Message):
+        self.actuators_status[message.header.device_id] = message.body.value
+        print(
+            f"Comando enviado pelo atuador - {message.header.device_id} = {message.body.value}."
+        )
+
+    def _handle_sensor_request(self, message: Message, conn: socket.socket):
+        value, timestamp_str = self.sensors_data.get(
+            message.header.device_id, ("EMPTY", "EMPTY")
+        )
+
+        if timestamp_str in ["EMPTY", None]:
+            timestamp = datetime.now()
+        else:
+            timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+
+        response_msg = Message(
+            header=Header(
+                version_protocol=1.0,
+                message_type="SENSOR_RESPONSE",
+                timestamp=timestamp,
+            ),
+            body=Body(value=value),
+        )
+        conn.sendall(response_msg.to_string().encode("utf-8"))
 
 
 if __name__ == "__main__":
