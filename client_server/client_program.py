@@ -83,6 +83,21 @@ class Client(Base):
 
         client.sendall(msg_actuator_command.to_string().encode("utf-8"))
 
+        # SENSOR_REQUEST
+        msg_sensor_request = Message(
+            header=Header(
+                version_protocol=1.0,
+                message_type="SENSOR_REQUEST",
+                device_id="sensor[temperatura_interna]",
+                timestamp=datetime.now(),
+            ),
+            body=Body(value="request"),
+        )
+
+        client.sendall(msg_sensor_request.to_string().encode("utf-8"))
+        response = client.recv(1024).decode("utf-8")
+        print(f"Resposta do servidor: {response}")
+
 
 if __name__ == "__main__":
     client = Client()
